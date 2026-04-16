@@ -1,6 +1,6 @@
-// Avatar: June HR (65f9e3c9) — Voice: June - Lifelike (62bbb4b2)
-const AVATAR_ID = "65f9e3c9-d48b-4118-b73a-4ae2e3cbb8f0";
-const VOICE_ID  = "62bbb4b2-bb26-4727-bc87-cfb2bd4e0cc8";
+// Avatar: Judy Lawyer (6e32f90a) — Voice: Judy - Professional (4f3b1e99)
+const AVATAR_ID = "6e32f90a-f566-45be-9ec7-a5f6999ee606";
+const VOICE_ID  = "4f3b1e99-b580-4f05-9b67-a5f585be0232";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
