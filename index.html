@@ -623,18 +623,21 @@
 
     try {
       const token = await fetchToken();
+      // voiceChat: false — we only need the avatar to speak, no mic input
       session = new LiveAvatarSession(token, {
         apiUrl: "https://api.liveavatar.com",
+        voiceChat: false,
       });
 
+      // SESSION_STREAM_READY fires during room.connect(), before start() resolves.
+      // Only attach the video here — do NOT call repeat() yet, the session
+      // state won't be CONNECTED until start() fully resolves.
       session.on(SessionEvent.SESSION_STREAM_READY, () => {
         session.attach(mediaEl);
         placeholder.classList.add("hidden");
         placeholder.classList.remove("loading");
         setStatus("Live", true);
         stopBtn.disabled = false;
-        // Deliver the script once the stream is ready
-        session.repeat(SCRIPT);
       });
 
       session.on(SessionEvent.SESSION_STATE_CHANGED, (state) => {
@@ -648,7 +651,9 @@
         }
       });
 
+      // start() resolves only after state = CONNECTED — safe to repeat() now
       await session.start();
+      session.repeat(SCRIPT);
 
     } catch (err) {
       console.error(err);
