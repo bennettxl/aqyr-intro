@@ -1,3 +1,7 @@
+// Avatar: June HR (65f9e3c9) — Voice: June - Lifelike (62bbb4b2)
+const AVATAR_ID = "65f9e3c9-d48b-4118-b73a-4ae2e3cbb8f0";
+const VOICE_ID  = "62bbb4b2-bb26-4727-bc87-cfb2bd4e0cc8";
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
@@ -9,7 +13,8 @@ export default async function handler(req, res) {
     },
     body: JSON.stringify({
       mode: "FULL",
-      avatar_id: process.env.AVATAR_ID || "3e904978-9d0c-41b1-9c91-7f20152954fd",
+      avatar_id: AVATAR_ID,
+      avatar_persona: { voice_id: VOICE_ID },
       is_sandbox: false,
     }),
   });
@@ -21,12 +26,11 @@ export default async function handler(req, res) {
   }
 
   const data = await r.json();
-  const session_token = data?.data?.session_token;
-  const session_id = data?.data?.session_id;
+  const token = data?.data?.session_token;
 
-  if (!session_token) {
+  if (!token) {
     return res.status(502).json({ error: "No session token in response" });
   }
 
-  res.status(200).json({ token: session_token, session_id });
+  res.status(200).json({ token });
 }
