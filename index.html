@@ -1,38 +1,679 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AQYR - AI-Powered Training Demo</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Aqyr Agent Training — Legacy X Design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #14120F;
+    --paper: #F5F1EA;
+    --cream: #EDE6D8;
+    --gold: #B08D57;
+    --gold-deep: #8B6B3D;
+    --ember: #7A2E2A;
+    --muted: #6B6358;
+    --line: rgba(20, 18, 15, 0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 400;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(176, 141, 87, 0.04) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(122, 46, 42, 0.03) 0%, transparent 45%);
+    opacity: 0.9;
+  }
+
+  .display {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+  }
+
+  .eyebrow {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--gold-deep);
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 22px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(245, 241, 234, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .brand em {
+    font-style: italic;
+    color: var(--gold-deep);
+  }
+
+  .dre {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    padding: 140px 48px 80px;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 64px;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .hero-copy .eyebrow { margin-bottom: 28px; display: inline-block; }
+
+  .hero h1 {
+    font-size: clamp(48px, 6vw, 84px);
+    margin-bottom: 28px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--gold-deep);
+  }
+
+  .hero-lede {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 520px;
+    margin-bottom: 40px;
+    line-height: 1.6;
+  }
+
+  .rule {
+    width: 60px;
+    height: 1px;
+    background: var(--gold);
+    margin: 28px 0;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 48px;
+    margin-top: 48px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+  }
+  .meta-item .label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .meta-item .value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 500;
+  }
+
+  /* AVATAR STAGE */
+  .stage {
+    position: relative;
+    aspect-ratio: 9 / 11;
+    background: var(--ink);
+    border-radius: 2px;
+    overflow: hidden;
+    box-shadow:
+      0 40px 80px -20px rgba(20, 18, 15, 0.35),
+      0 0 0 1px rgba(176, 141, 87, 0.3),
+      0 0 0 8px var(--paper),
+      0 0 0 9px var(--gold);
+  }
+
+  .stage::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(20,18,15,0.0) 60%, rgba(20,18,15,0.4) 100%);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  #mediaElement {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    background: #14120F;
+  }
+
+  .stage-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--cream);
+    text-align: center;
+    padding: 40px;
+    z-index: 1;
+    background: radial-gradient(circle at center, #2a2520 0%, #14120F 100%);
+  }
+  .stage-placeholder.hidden { display: none; }
+
+  .stage-placeholder .mark {
+    width: 52px;
+    height: 52px;
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .stage-placeholder .mark::before {
+    content: '';
+    width: 0; height: 0;
+    border-left: 14px solid var(--gold);
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    margin-left: 4px;
+  }
+
+  .stage-placeholder h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 28px;
+    margin-bottom: 12px;
+    color: var(--cream);
+  }
+  .stage-placeholder p {
+    font-size: 13px;
+    color: rgba(237, 230, 216, 0.6);
+    letter-spacing: 0.05em;
+    max-width: 280px;
+  }
+
+  /* Loading state */
+  .stage-placeholder.loading .mark::before {
+    display: none;
+  }
+  .stage-placeholder.loading .mark {
+    border-color: var(--gold);
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .stage-label {
+    position: absolute;
+    bottom: 20px;
+    left: 24px;
+    right: 24px;
+    z-index: 3;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    color: var(--cream);
+  }
+  .stage-label .name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-style: italic;
+  }
+  .stage-label .role {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .stage-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .status-dot {
+    width: 6px; height: 6px;
+    background: #888;
+    border-radius: 50%;
+  }
+  .status-dot.live {
+    background: #d4412e;
+    box-shadow: 0 0 0 0 rgba(212, 65, 46, 0.7);
+    animation: pulse 1.6s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(212, 65, 46, 0.7); }
+    70% { box-shadow: 0 0 0 8px rgba(212, 65, 46, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(212, 65, 46, 0); }
+  }
+
+  /* CONTROLS */
+  .controls {
+    margin-top: 32px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 16px 32px;
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    color: var(--cream);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 0;
+  }
+  .btn:hover:not(:disabled) {
+    background: var(--ember);
+    border-color: var(--ember);
+    transform: translateY(-1px);
+  }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn.ghost {
+    background: transparent;
+    color: var(--ink);
+  }
+  .btn.ghost:hover:not(:disabled) {
+    background: var(--ink);
+    color: var(--cream);
+  }
+
+  /* TRAINING SECTION */
+  .training {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 80px 48px 120px;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 80px;
+    border-top: 1px solid var(--line);
+  }
+
+  .training-side .eyebrow { margin-bottom: 20px; display: block; }
+  .training-side h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 44px;
+    line-height: 1.05;
+    margin-bottom: 24px;
+  }
+  .training-side h2 em {
+    font-style: italic;
+    color: var(--gold-deep);
+  }
+  .training-side p {
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 340px;
+  }
+
+  .modules {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .module {
+    display: grid;
+    grid-template-columns: 60px 1fr auto;
+    gap: 24px;
+    align-items: center;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    transition: padding-left 0.3s ease;
+  }
+  .module:first-child { border-top: 1px solid var(--line); }
+  .module:hover { padding-left: 8px; }
+  .module:hover .module-title { color: var(--ember); }
+
+  .module-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-style: italic;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .module-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+  .module-meta {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 80px 48px 40px;
+    position: relative;
+    z-index: 2;
+  }
+  .footer-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 64px;
+    padding-bottom: 60px;
+    border-bottom: 1px solid rgba(237, 230, 216, 0.15);
+  }
+  footer h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 400;
+    font-style: italic;
+    margin-bottom: 16px;
+    max-width: 440px;
+    line-height: 1.2;
+  }
+  footer h4 em { color: var(--gold); font-style: italic; }
+  footer .col-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  footer p, footer a {
+    color: rgba(237, 230, 216, 0.7);
+    font-size: 14px;
+    line-height: 1.8;
+    text-decoration: none;
+  }
+  .footer-bottom {
+    max-width: 1400px;
+    margin: 40px auto 0;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: rgba(237, 230, 216, 0.5);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  /* ERROR */
+  .error-banner {
+    display: none;
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: rgba(122, 46, 42, 0.08);
+    border-left: 3px solid var(--ember);
+    font-size: 13px;
+    color: var(--ember);
+  }
+  .error-banner.visible { display: block; }
+
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; }
+    .dre { display: none; }
+    .hero { grid-template-columns: 1fr; padding: 110px 24px 60px; gap: 40px; }
+    .training { grid-template-columns: 1fr; padding: 60px 24px 80px; gap: 40px; }
+    .footer-inner { grid-template-columns: 1fr; gap: 40px; }
+    .footer-bottom { flex-direction: column; gap: 12px; }
+    .meta-row { gap: 24px; flex-wrap: wrap; }
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">AQYR</div>
-            <div class="tagline">LEGACY X DESIGN</div>
-        </header>
-        <main>
-            <h1>The Modern Agent: AI-Powered Portfolio Strategy</h1>
-            <p class="subtitle">A demonstration of AI-driven training by XLInteractive</p>
-            <div class="video-container">
-                <div class="video-placeholder">
-                    <p><strong>AI Avatar Video Coming Soon</strong><br>A 30-second, AI-generated training presentation will be embedded here. We are currently resolving a technical issue with our secure credential manager that is blocking video generation.</p>
-                </div>
-            </div>
-            <div class="description">
-                <h2>Acquire the Portfolio of Your Dreams.</h2>
-                <p>This presentation demonstrates how AI avatars can transform your agent training, delivering consistent, high-impact modules on demand. Imagine scaling your unique methodology across your entire team, instantly.</p>
-                <a href="#" class="cta-button">Discover Your AI Opportunity</a>
-            </div>
-        </main>
-        <footer>
-            <p>&copy; 2026 AQYR, Inc. | Demo created by XLInteractive</p>
-        </footer>
+
+<nav>
+  <div class="brand">Aqyr<em>.</em></div>
+  <div class="dre">CA DRE #02218409 · Legacy X Design</div>
+</nav>
+
+<section class="hero">
+  <div class="hero-copy">
+    <span class="eyebrow">Agent Training · Module 01</span>
+    <h1>Home is more than<br/>a certain <em>set of walls.</em></h1>
+    <p class="hero-lede">
+      A thirty-second orientation for agents joining Aqyr's Legacy X Design program — where property expertise meets the experience of serving matters of the heart.
+    </p>
+
+    <div class="controls">
+      <button id="startBtn" class="btn">Begin Session</button>
+      <button id="stopBtn" class="btn ghost" disabled>End</button>
     </div>
+    <div id="errorBanner" class="error-banner"></div>
+
+    <div class="meta-row">
+      <div class="meta-item">
+        <div class="label">Duration</div>
+        <div class="value">00:30</div>
+      </div>
+      <div class="meta-item">
+        <div class="label">Format</div>
+        <div class="value">Live Avatar</div>
+      </div>
+      <div class="meta-item">
+        <div class="label">Region</div>
+        <div class="value">Sacramento Valley</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div id="placeholder" class="stage-placeholder">
+      <div class="mark"></div>
+      <h3>Your instructor is ready</h3>
+      <p>Tap "Begin Session" to start your thirty-second onboarding briefing.</p>
+    </div>
+    <video id="mediaElement" autoplay playsinline></video>
+    <div class="stage-label">
+      <div>
+        <div class="name">A. Legacy</div>
+        <div class="role">Aqyr Agent Training</div>
+      </div>
+      <div class="stage-status">
+        <span id="statusDot" class="status-dot"></span>
+        <span id="statusText">Standby</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="training">
+  <div class="training-side">
+    <span class="eyebrow">Curriculum</span>
+    <h2>The Aqyr<br/><em>Advantage.</em></h2>
+    <p>A distinguished minority and woman-owned brokerage. Our training positions agents to build generational wealth — for clients, and for themselves.</p>
+  </div>
+
+  <div class="modules">
+    <div class="module">
+      <div class="module-num">01</div>
+      <div class="module-title">Welcome to Legacy X Design</div>
+      <div class="module-meta">30 sec · Live</div>
+    </div>
+    <div class="module">
+      <div class="module-num">02</div>
+      <div class="module-title">Positioning Clients for Portfolio Growth</div>
+      <div class="module-meta">12 min</div>
+    </div>
+    <div class="module">
+      <div class="module-num">03</div>
+      <div class="module-title">The Sacramento & Bay Area Markets</div>
+      <div class="module-meta">18 min</div>
+    </div>
+    <div class="module">
+      <div class="module-num">04</div>
+      <div class="module-title">Financial Literacy as a Service</div>
+      <div class="module-meta">22 min</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div>
+      <h4>Ready to acquire the <em>portfolio of your dreams?</em></h4>
+      <p>Proudly serving the Greater Sacramento Valley & the Greater Bay Area.</p>
+    </div>
+    <div>
+      <div class="col-label">Office</div>
+      <p>5420 Kohler Road #41702<br/>Sacramento, CA 95841</p>
+      <p>(510) 542-6927</p>
+    </div>
+    <div>
+      <div class="col-label">Hours</div>
+      <p>Mon–Fri · 9–6pm<br/>Sat–Sun · 12–4pm</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div>Aqyr, Inc. — Demo Experience</div>
+    <div>Powered by HeyGen Interactive Avatars</div>
+  </div>
+</footer>
+
+<script type="module">
+  import StreamingAvatar, { AvatarQuality, StreamingEvents, TaskType } from "https://esm.sh/@heygen/streaming-avatar";
+
+  const AVATAR_ID = "3e904978-9d0c-41b1-9c91-7f20152954fd";
+  const TOKEN_ENDPOINT = "/api/heygen-token";
+
+  const SCRIPT = `Welcome to Aqyr. I'm your Legacy X Design onboarding guide. At Aqyr, we believe home is more than a certain set of walls — it's how our clients build generational wealth. Over the next few modules, you'll learn how we position buyers and sellers across Sacramento and the Bay Area, how we deliver financial literacy as a service, and how you, as an Aqyr agent, become part of something meaningful. Let's begin.`;
+
+  const startBtn = document.getElementById("startBtn");
+  const stopBtn = document.getElementById("stopBtn");
+  const mediaEl = document.getElementById("mediaElement");
+  const placeholder = document.getElementById("placeholder");
+  const statusDot = document.getElementById("statusDot");
+  const statusText = document.getElementById("statusText");
+  const errorBanner = document.getElementById("errorBanner");
+
+  let avatar = null;
+
+  const setStatus = (text, live = false) => {
+    statusText.textContent = text;
+    statusDot.classList.toggle("live", live);
+  };
+
+  const showError = (msg) => {
+    errorBanner.textContent = msg;
+    errorBanner.classList.add("visible");
+  };
+  const clearError = () => errorBanner.classList.remove("visible");
+
+  async function fetchToken() {
+    const r = await fetch(TOKEN_ENDPOINT, { method: "POST" });
+    if (!r.ok) throw new Error(`Token endpoint returned ${r.status}`);
+    const { token } = await r.json();
+    if (!token) throw new Error("No token returned from server.");
+    return token;
+  }
+
+  async function startSession() {
+    clearError();
+    startBtn.disabled = true;
+    placeholder.classList.add("loading");
+    setStatus("Connecting…");
+
+    try {
+      const token = await fetchToken();
+      avatar = new StreamingAvatar({ token });
+
+      avatar.on(StreamingEvents.STREAM_READY, (event) => {
+        mediaEl.srcObject = event.detail;
+        placeholder.classList.add("hidden");
+        placeholder.classList.remove("loading");
+        setStatus("Live", true);
+        stopBtn.disabled = false;
+      });
+
+      avatar.on(StreamingEvents.STREAM_DISCONNECTED, () => {
+        setStatus("Ended");
+        stopBtn.disabled = true;
+        startBtn.disabled = false;
+        placeholder.classList.remove("hidden", "loading");
+        mediaEl.srcObject = null;
+      });
+
+      await avatar.createStartAvatar({
+        quality: AvatarQuality.High,
+        avatarName: AVATAR_ID,
+        disableIdleTimeout: false,
+      });
+
+      await avatar.speak({ text: SCRIPT, taskType: TaskType.REPEAT });
+
+    } catch (err) {
+      console.error(err);
+      showError(err.message || "Unable to start session.");
+      setStatus("Error");
+      startBtn.disabled = false;
+      placeholder.classList.remove("loading");
+    }
+  }
+
+  async function stopSession() {
+    try {
+      if (avatar) await avatar.stopAvatar();
+    } catch (e) { console.warn(e); }
+    placeholder.classList.remove("hidden", "loading");
+    mediaEl.srcObject = null;
+    setStatus("Standby");
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    avatar = null;
+  }
+
+  startBtn.addEventListener("click", startSession);
+  stopBtn.addEventListener("click", stopSession);
+</script>
+
 </body>
 </html>
