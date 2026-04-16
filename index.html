@@ -580,9 +580,8 @@
 </footer>
 
 <script type="module">
-  import StreamingAvatar, { AvatarQuality, StreamingEvents, TaskType } from "https://esm.sh/@heygen/streaming-avatar";
+  import { LiveAvatarSession, SessionEvent, SessionState } from "https://esm.sh/@heygen/liveavatar-web-sdk";
 
-  const AVATAR_ID = "3e904978-9d0c-41b1-9c91-7f20152954fd";
   const TOKEN_ENDPOINT = "/api/heygen-token";
 
   const SCRIPT = `Welcome to Aqyr. I'm your Legacy X Design onboarding guide. At Aqyr, we believe home is more than a certain set of walls — it's how our clients build generational wealth. Over the next few modules, you'll learn how we position buyers and sellers across Sacramento and the Bay Area, how we deliver financial literacy as a service, and how you, as an Aqyr agent, become part of something meaningful. Let's begin.`;
@@ -595,7 +594,7 @@
   const statusText = document.getElementById("statusText");
   const errorBanner = document.getElementById("errorBanner");
 
-  let avatar = null;
+  let session = null;
 
   const setStatus = (text, live = false) => {
     statusText.textContent = text;
@@ -624,31 +623,32 @@
 
     try {
       const token = await fetchToken();
-      avatar = new StreamingAvatar({ token });
+      session = new LiveAvatarSession(token, {
+        apiUrl: "https://api.liveavatar.com",
+      });
 
-      avatar.on(StreamingEvents.STREAM_READY, (event) => {
-        mediaEl.srcObject = event.detail;
+      session.on(SessionEvent.SESSION_STREAM_READY, () => {
+        session.attach(mediaEl);
         placeholder.classList.add("hidden");
         placeholder.classList.remove("loading");
         setStatus("Live", true);
         stopBtn.disabled = false;
+        // Deliver the script once the stream is ready
+        session.repeat(SCRIPT);
       });
 
-      avatar.on(StreamingEvents.STREAM_DISCONNECTED, () => {
-        setStatus("Ended");
-        stopBtn.disabled = true;
-        startBtn.disabled = false;
-        placeholder.classList.remove("hidden", "loading");
-        mediaEl.srcObject = null;
+      session.on(SessionEvent.SESSION_STATE_CHANGED, (state) => {
+        if (state === SessionState.DISCONNECTED) {
+          setStatus("Ended");
+          stopBtn.disabled = true;
+          startBtn.disabled = false;
+          placeholder.classList.remove("hidden", "loading");
+          mediaEl.srcObject = null;
+          session = null;
+        }
       });
 
-      await avatar.createStartAvatar({
-        quality: AvatarQuality.High,
-        avatarName: AVATAR_ID,
-        disableIdleTimeout: false,
-      });
-
-      await avatar.speak({ text: SCRIPT, taskType: TaskType.REPEAT });
+      await session.start();
 
     } catch (err) {
       console.error(err);
@@ -661,14 +661,14 @@
 
   async function stopSession() {
     try {
-      if (avatar) await avatar.stopAvatar();
+      if (session) await session.stop();
     } catch (e) { console.warn(e); }
     placeholder.classList.remove("hidden", "loading");
     mediaEl.srcObject = null;
     setStatus("Standby");
     startBtn.disabled = false;
     stopBtn.disabled = true;
-    avatar = null;
+    session = null;
   }
 
   startBtn.addEventListener("click", startSession);
